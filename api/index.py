@@ -1,13 +1,10 @@
-"""
-Vercel Serverless Entry Point for Flask App
-"""
+# api/index.py
 import sys
 import os
 
-# Add parent directory to path
+# Parent directory ko path mein add karo taake app.py import ho sake
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import app
 
-# Export Flask app as handler for Vercel
-handler = app
+# Vercel `app` variable dhundta hai — already imported
