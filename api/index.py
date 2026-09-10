@@ -1,6 +1,3 @@
-"""
-Vercel Serverless Entry Point for Flask App
-"""
 import sys
 import os
 
