@@ -234,8 +234,6 @@ async function initSkills() {
     await loadSkillsTable();
     
     const addBtn = document.getElementById('addSkillBtn');
-    const modal = document.getElementById('skillModal');
-    const modalClose = document.getElementById('modalClose');
     const form = document.getElementById('skillForm');
     
     if (addBtn) {
@@ -244,12 +242,10 @@ async function initSkills() {
             form.reset();
             document.getElementById('skillId').value = '';
             document.getElementById('skillActive').checked = true;
-            modal.classList.add('active');
+            
+            const modal = new bootstrap.Modal(document.getElementById('skillModal'));
+            modal.show();
         });
-    }
-    
-    if (modalClose) {
-        modalClose.addEventListener('click', () => modal.classList.remove('active'));
     }
     
     if (form) {
@@ -271,7 +267,11 @@ async function initSkills() {
                 } else {
                     await apiCall('/api/skills', { method: 'POST', body: JSON.stringify(data) });
                 }
-                modal.classList.remove('active');
+                
+                const modalEl = document.getElementById('skillModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                
                 await loadSkillsTable();
             } catch (error) {
                 alert('Failed to save skill');
@@ -327,7 +327,9 @@ window.editSkill = function(id) {
     document.getElementById('skillIcon').value = skill.icon;
     document.getElementById('skillOrder').value = skill.display_order;
     document.getElementById('skillActive').checked = skill.is_active;
-    document.getElementById('skillModal').classList.add('active');
+    
+    const modal = new bootstrap.Modal(document.getElementById('skillModal'));
+    modal.show();
 };
 
 window.deleteSkill = async function(id) {
@@ -347,8 +349,6 @@ async function initProjects() {
     await loadProjectsTable();
     
     const addBtn = document.getElementById('addProjectBtn');
-    const modal = document.getElementById('projectModal');
-    const modalClose = document.getElementById('modalClose');
     const form = document.getElementById('projectForm');
     
     if (addBtn) {
@@ -357,12 +357,10 @@ async function initProjects() {
             form.reset();
             document.getElementById('projectId').value = '';
             document.getElementById('projectActive').checked = true;
-            modal.classList.add('active');
+            
+            const modal = new bootstrap.Modal(document.getElementById('projectModal'));
+            modal.show();
         });
-    }
-    
-    if (modalClose) {
-        modalClose.addEventListener('click', () => modal.classList.remove('active'));
     }
     
     if (form) {
@@ -388,7 +386,11 @@ async function initProjects() {
                 } else {
                     await apiCall('/api/projects', { method: 'POST', body: JSON.stringify(data) });
                 }
-                modal.classList.remove('active');
+                
+                const modalEl = document.getElementById('projectModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                
                 await loadProjectsTable();
             } catch (error) {
                 alert('Failed to save project');
@@ -449,7 +451,9 @@ window.editProject = function(id) {
     document.getElementById('projectOrder').value = project.display_order || 0;
     document.getElementById('projectFeatured').checked = project.is_featured;
     document.getElementById('projectActive').checked = project.is_active;
-    document.getElementById('projectModal').classList.add('active');
+    
+    const modal = new bootstrap.Modal(document.getElementById('projectModal'));
+    modal.show();
 };
 
 window.deleteProject = async function(id) {
@@ -469,8 +473,6 @@ async function initExperience() {
     await loadExperienceList();
     
     const addBtn = document.getElementById('addExpBtn');
-    const modal = document.getElementById('expModal');
-    const modalClose = document.getElementById('modalClose');
     const form = document.getElementById('expForm');
     
     if (addBtn) {
@@ -478,12 +480,10 @@ async function initExperience() {
             document.getElementById('modalTitle').textContent = 'Add Experience';
             form.reset();
             document.getElementById('expId').value = '';
-            modal.classList.add('active');
+            
+            const modal = new bootstrap.Modal(document.getElementById('expModal'));
+            modal.show();
         });
-    }
-    
-    if (modalClose) {
-        modalClose.addEventListener('click', () => modal.classList.remove('active'));
     }
     
     if (form) {
@@ -506,7 +506,11 @@ async function initExperience() {
                 } else {
                     await apiCall('/api/experience', { method: 'POST', body: JSON.stringify(data) });
                 }
-                modal.classList.remove('active');
+                
+                const modalEl = document.getElementById('expModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                
                 await loadExperienceList();
             } catch (error) {
                 alert('Failed to save experience');
@@ -562,7 +566,9 @@ window.editExperience = function(id) {
     document.getElementById('expEnd').value = exp.end_date || '';
     document.getElementById('expOrder').value = exp.display_order || 0;
     document.getElementById('expCurrent').checked = exp.is_current;
-    document.getElementById('expModal').classList.add('active');
+    
+    const modal = new bootstrap.Modal(document.getElementById('expModal'));
+    modal.show();
 };
 
 window.deleteExperience = async function(id) {
