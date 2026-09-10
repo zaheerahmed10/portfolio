@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Profile | Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #00ff88; --primary-dark: #00cc6a; --dark-bg: #050505; --sidebar-bg: #0a0a0a; --card-bg: rgba(10, 10, 10, 0.7); --glass-border: rgba(0, 255, 136, 0.15); --text-gray: #888; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--dark-bg); color: #fff; overflow-x: hidden; }
+        .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(circle at 20% 30%, rgba(0,255,136,0.03), transparent 50%); }
+        .grid-pattern { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-image: linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px); background-size: 50px 50px; }
+        #particlesContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; overflow: hidden; }
+        .particle { position: absolute; background: var(--primary); border-radius: 50%; opacity: 0.4; animation: floatParticle linear infinite; }
+        @keyframes floatParticle { 0% { transform: translateY(100vh); opacity: 0; } 10% { opacity: 0.6; } 90% { opacity: 0.3; } 100% { transform: translateY(-20vh); opacity: 0; } }
+        .admin-wrapper { display: flex; min-height: 100vh; }
+        .admin-sidebar { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--glass-border); position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
+        .sidebar-header { padding: 25px; text-align: center; border-bottom: 1px solid var(--glass-border); }
+        .sidebar-header h3 { font-size: 1.6rem; font-weight: 800; }
+        .sidebar-header h3 span { color: var(--primary); }
+        .sidebar-header p { font-size: 0.75rem; color: var(--text-gray); }
+        .sidebar-nav { list-style: none; padding: 20px 0; margin: 0; }
+        .sidebar-nav li a { display: flex; align-items: center; gap: 12px; padding: 14px 25px; color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.3s; font-size: 0.9rem; position: relative; }
+        .sidebar-nav li a:hover, .sidebar-nav li a.active { background: rgba(0,255,136,0.1); color: var(--primary); }
+        .sidebar-nav li a::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary); transform: scaleY(0); transition: transform 0.3s; }
+        .sidebar-nav li a:hover::before, .sidebar-nav li a.active::before { transform: scaleY(1); }
+        .sidebar-nav li a i { width: 22px; font-size: 1.1rem; }
+        .admin-main { flex: 1; margin-left: 260px; padding: 25px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 20px; border: 1px solid var(--glass-border); margin-bottom: 30px; }
+        .admin-header h2 { font-size: 1.5rem; margin: 0; }
+        .glass-card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px; }
+        .form-control-custom { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px 16px; border-radius: 12px; color: white; width: 100%; transition: all 0.3s; }
+        .form-control-custom:focus { outline: none; border-color: var(--primary); background: rgba(0,255,136,0.05); }
+        .form-control-custom::placeholder { color: #666; }
+        .form-label { font-size: 0.85rem; color: #aaa; margin-bottom: 8px; }
+        .btn-primary-custom { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; padding: 12px 28px; border-radius: 50px; font-weight: 600; color: var(--dark-bg); cursor: pointer; transition: all 0.3s; }
+        .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,255,136,0.4); }
+        .form-message { margin-top: 15px; padding: 12px; border-radius: 10px; text-align: center; font-size: 0.9rem; display: none; }
+        .form-message.success { display: block; background: rgba(16,185,129,0.1); color: var(--primary); border: 1px solid rgba(0,255,136,0.3); }
+        .form-message.error { display: block; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        footer { border-top: 1px solid var(--glass-border); padding: 25px 0; margin-top: 40px; text-align: center; }
+        .social-icon { width: 35px; height: 35px; background: rgba(255,255,255,0.05); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; text-decoration: none; transition: all 0.3s; }
+        .social-icon:hover { background: var(--primary); color: var(--dark-bg); }
+        .menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--primary); color: var(--dark-bg); border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-size: 1.2rem; }
+        @media (max-width: 768px) { .admin-sidebar { transform: translateX(-100%); } .admin-sidebar.open { transform: translateX(0); } .admin-main { margin-left: 0; padding: 15px; padding-top: 70px; } .menu-toggle { display: block; } }
+    </style>
+</head>
+<body>
+<div class="animated-bg"></div>
+<div class="grid-pattern"></div>
+<div id="particlesContainer"></div>
+
+<button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
+<div class="admin-wrapper">
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="sidebar-header"><h3>ZA<span>.</span></h3><p>ADMIN PANEL</p></div>
+        <ul class="sidebar-nav">
+            <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="/admin/profile" class="active"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="/admin/skills"><i class="fas fa-code"></i> Skills</a></li>
+            <li><a href="/admin/projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
+            <li><a href="/admin/experience"><i class="fas fa-briefcase"></i> Experience</a></li>
+            <li><a href="/admin/messages"><i class="fas fa-envelope"></i> Messages</a></li>
+            <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </aside>
+
+    <main class="admin-main">
+        <div class="admin-header">
+            <h2><i class="fas fa-user me-2" style="color:var(--primary);"></i> Profile Settings</h2>
+        </div>
+
+        <div class="glass-card">
+            <form id="profileForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" id="profileName" class="form-control-custom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" id="profileTitle" class="form-control-custom">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Bio</label>
+                        <input type="text" id="profileBio" class="form-control-custom">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">About</label>
+                        <textarea id="profileAbout" class="form-control-custom" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="profileEmail" class="form-control-custom">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" id="profilePhone" class="form-control-custom">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" id="profileLocation" class="form-control-custom">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">GitHub URL</label>
+                        <input type="url" id="profileGithub" class="form-control-custom">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">LinkedIn URL</label>
+                        <input type="url" id="profileLinkedin" class="form-control-custom">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Profile Image URL</label>
+                        <input type="url" id="profileImageUrl" class="form-control-custom">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Resume URL</label>
+                        <input type="url" id="profileResume" class="form-control-custom">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary-custom"><i class="fas fa-save me-2"></i> Save Profile</button>
+                <div id="formMessage" class="form-message"></div>
+            </form>
+        </div>
+
+        <footer>
+            <p class="small mb-0" style="color:var(--text-gray);">&copy; 2026 Zaheer Ahmed</p>
+        </footer>
+    </main>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script>
+    const c = document.getElementById('particlesContainer');
+    for (let i = 0; i < 40; i++) { const p = document.createElement('div'); p.classList.add('particle'); p.style.left = Math.random()*100+'%'; p.style.animationDelay = Math.random()*20+'s'; p.style.animationDuration = (12+Math.random()*18)+'s'; p.style.width = p.style.height = (Math.random()*3+2)+'px'; c.appendChild(p); }
+    document.getElementById('menuToggle')?.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href='/login'; });
+</script>
+</body>
+</html>
