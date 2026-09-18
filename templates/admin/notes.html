@@ -1,0 +1,205 @@
+{% extends "admin/_base.html" %}
+{% block title %}Notes & Ideas{% endblock %}
+{% block page_title %}Notes &amp; Ideas{% endblock %}
+
+{% block content %}
+
+<div class="section-head">
+    <div class="notes-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="idea">💡 Ideas</button>
+        <button class="filter-btn" data-filter="reminder">⏰ Reminders</button>
+        <button class="filter-btn" data-filter="todo">✅ Todo</button>
+        <button class="filter-btn" data-filter="bookmark">🔖 Bookmarks</button>
+    </div>
+    <button class="btn btn-primary" onclick="openNoteModal()">
+        <i class="fas fa-plus"></i> New Note
+    </button>
+</div>
+
+<div id="notesGrid" class="notes-grid">
+    <div class="loading" style="grid-column: 1/-1;">
+        <i class="fas fa-spinner fa-spin"></i> Loading notes...
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="noteModal">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="modalTitle">New Note</h3>
+            <button class="modal-close" onclick="closeNoteModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="noteForm" onsubmit="return saveNote(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" id="noteTitle" class="form-input" placeholder="e.g. Certificate add karna hai..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea id="noteContent" class="form-textarea" placeholder="Details likho..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="noteCategory" class="form-select">
+                        <option value="idea">💡 Idea</option>
+                        <option value="reminder">⏰ Reminder</option>
+                        <option value="todo">✅ Todo</option>
+                        <option value="bookmark">🔖 Bookmark</option>
+                    </select>
+                </div>
+                <label class="form-check" style="margin-bottom: 10px;">
+                    <input type="checkbox" id="notePinned">
+                    <span>📌 Pin this note</span>
+                </label>
+                <label class="form-check">
+                    <input type="checkbox" id="noteCompleted">
+                    <span>✅ Mark as completed</span>
+                </label>
+            </div>
+            <div class="modal-foot">
+                <button type="button" class="btn btn-ghost" onclick="closeNoteModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Note</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const NOTES_HEADERS = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+};
+let allNotes = [];
+let currentFilter = 'all';
+let editingId = null;
+
+const notesGrid = document.getElementById('notesGrid');
+const modal = document.getElementById('noteModal');
+
+async function loadNotes() {
+    try {
+        const res = await fetch('/api/notes', { headers: NOTES_HEADERS });
+        const data = await res.json();
+        allNotes = data.notes || [];
+        renderNotes();
+    } catch (e) {
+        notesGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle"></i><p>Failed to load notes</p></div>';
+    }
+}
+
+function renderNotes() {
+    let filtered = currentFilter === 'all'
+        ? allNotes
+        : allNotes.filter(n => n.category === currentFilter);
+
+    if (filtered.length === 0) {
+        notesGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-lightbulb"></i><p>No notes yet. Click "New Note" to add one.</p></div>`;
+        return;
+    }
+
+    notesGrid.innerHTML = filtered.map(n => `
+        <div class="note-card ${n.is_pinned ? 'pinned' : ''} ${n.is_completed ? 'completed' : ''}">
+            <span class="note-cat ${n.category}">${n.category}</span>
+            <div class="note-title">${escHtml(n.title)}</div>
+            <div class="note-content">${escHtml(n.content || '')}</div>
+            <div class="note-foot">
+                <span class="note-date">${new Date(n.created_at).toLocaleDateString()}</span>
+                <div class="note-actions">
+                    <button class="btn-icon" onclick="editNote('${n.id}')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon danger" onclick="deleteNote('${n.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function escHtml(t) {
+    if (t == null) return '';
+    const d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderNotes();
+    });
+});
+
+function openNoteModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'New Note';
+    document.getElementById('noteForm').reset();
+    document.getElementById('noteTitle').value = '';
+    document.getElementById('noteContent').value = '';
+    document.getElementById('noteCategory').value = 'idea';
+    document.getElementById('notePinned').checked = false;
+    document.getElementById('noteCompleted').checked = false;
+    modal.classList.add('open');
+}
+
+function closeNoteModal() {
+    modal.classList.remove('open');
+}
+
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeNoteModal();
+});
+
+async function saveNote(e) {
+    e.preventDefault();
+    const payload = {
+        title: document.getElementById('noteTitle').value.trim(),
+        content: document.getElementById('noteContent').value.trim(),
+        category: document.getElementById('noteCategory').value,
+        is_pinned: document.getElementById('notePinned').checked,
+        is_completed: document.getElementById('noteCompleted').checked
+    };
+
+    try {
+        const url = editingId ? `/api/notes/${editingId}` : '/api/notes';
+        const method = editingId ? 'PUT' : 'POST';
+        const res = await fetch(url, { method, headers: NOTES_HEADERS, body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (data.success) {
+            closeNoteModal();
+            await loadNotes();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (err) {
+        alert('Failed to save');
+    }
+    return false;
+}
+
+window.editNote = function(id) {
+    const n = allNotes.find(x => x.id === id);
+    if (!n) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Note';
+    document.getElementById('noteTitle').value = n.title || '';
+    document.getElementById('noteContent').value = n.content || '';
+    document.getElementById('noteCategory').value = n.category || 'idea';
+    document.getElementById('notePinned').checked = !!n.is_pinned;
+    document.getElementById('noteCompleted').checked = !!n.is_completed;
+    modal.classList.add('open');
+};
+
+window.deleteNote = async function(id) {
+    if (!confirm('Delete this note?')) return;
+    await fetch(`/api/notes/${id}`, { method: 'DELETE', headers: NOTES_HEADERS });
+    await loadNotes();
+};
+
+loadNotes();
+</script>
+{% endblock %}

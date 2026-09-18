@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %} — ZA.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+
+<div class="admin-layout">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            ZA<span>.</span>
+            <small>Admin Panel</small>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/admin/profile"><i class="fas fa-user"></i> Profile</a>
+            <a href="/admin/skills"><i class="fas fa-code"></i> Skills</a>
+            <a href="/admin/projects"><i class="fas fa-cube"></i> Projects</a>
+            <a href="/admin/experience"><i class="fas fa-briefcase"></i> Experience</a>
+            <a href="/admin/notes"><i class="fas fa-lightbulb"></i> Notes &amp; Ideas</a>
+            <a href="/admin/messages"><i class="fas fa-envelope"></i> Messages</a>
+            <a href="/admin/users"><i class="fas fa-users"></i> Users</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+            <div class="spacer"></div>
+            <div class="topbar-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="globalSearch" placeholder="Search...">
+            </div>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

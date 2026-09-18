@@ -1,131 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Experience | Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --primary: #00ff88; --primary-dark: #00cc6a; --dark-bg: #050505; --sidebar-bg: #0a0a0a; --card-bg: rgba(10, 10, 10, 0.7); --glass-border: rgba(0, 255, 136, 0.15); --text-gray: #888; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--dark-bg); color: #fff; overflow-x: hidden; }
-        .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(circle at 20% 30%, rgba(0,255,136,0.03), transparent 50%); }
-        .grid-pattern { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-image: linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px); background-size: 50px 50px; }
-        #particlesContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; overflow: hidden; }
-        .particle { position: absolute; background: var(--primary); border-radius: 50%; opacity: 0.4; animation: floatParticle linear infinite; }
-        @keyframes floatParticle { 0% { transform: translateY(100vh); opacity: 0; } 10% { opacity: 0.6; } 90% { opacity: 0.3; } 100% { transform: translateY(-20vh); opacity: 0; } }
-        .admin-wrapper { display: flex; min-height: 100vh; }
-        .admin-sidebar { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--glass-border); position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
-        .sidebar-header { padding: 25px; text-align: center; border-bottom: 1px solid var(--glass-border); }
-        .sidebar-header h3 { font-size: 1.6rem; font-weight: 800; }
-        .sidebar-header h3 span { color: var(--primary); }
-        .sidebar-header p { font-size: 0.75rem; color: var(--text-gray); }
-        .sidebar-nav { list-style: none; padding: 20px 0; margin: 0; }
-        .sidebar-nav li a { display: flex; align-items: center; gap: 12px; padding: 14px 25px; color: rgba(255,255,255,0.7); text-decoration: none; transition: all 0.3s; font-size: 0.9rem; position: relative; }
-        .sidebar-nav li a:hover, .sidebar-nav li a.active { background: rgba(0,255,136,0.1); color: var(--primary); }
-        .sidebar-nav li a::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary); transform: scaleY(0); transition: transform 0.3s; }
-        .sidebar-nav li a:hover::before, .sidebar-nav li a.active::before { transform: scaleY(1); }
-        .sidebar-nav li a i { width: 22px; font-size: 1.1rem; }
-        .admin-main { flex: 1; margin-left: 260px; padding: 25px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background: var(--card-bg); border-radius: 20px; border: 1px solid var(--glass-border); margin-bottom: 30px; }
-        .admin-header h2 { font-size: 1.5rem; margin: 0; }
-        .glass-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; }
-        .btn-primary-custom { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; padding: 10px 24px; border-radius: 30px; font-weight: 600; color: var(--dark-bg); cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,255,136,0.4); color: var(--dark-bg); }
-        .btn-sm { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; border: none; cursor: pointer; margin: 0 3px; transition: all 0.3s; }
-        .btn-edit { background: rgba(0,255,136,0.2); color: var(--primary); }
-        .btn-edit:hover { background: var(--primary); color: var(--dark-bg); }
-        .btn-delete { background: rgba(255,68,68,0.2); color: #ff4444; }
-        .btn-delete:hover { background: #ff4444; color: white; }
-        .form-control-custom { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 12px 16px; border-radius: 12px; color: white; width: 100%; }
-        .form-control-custom:focus { outline: none; border-color: var(--primary); background: rgba(0,255,136,0.05); }
-        .form-label { font-size: 0.85rem; color: #aaa; margin-bottom: 8px; }
-        .modal-content { background: #0a0a0a; border: 1px solid var(--glass-border); border-radius: 20px; }
-        .modal-header, .modal-footer { border-color: var(--glass-border); }
-        .exp-item { background: rgba(255,255,255,0.03); border-left: 3px solid var(--primary); border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: start; }
-        .exp-item h3 { font-size: 1.1rem; margin-bottom: 5px; }
-        .exp-item .org { color: var(--primary); font-size: 0.9rem; margin-bottom: 8px; }
-        .exp-item .date { font-size: 0.75rem; background: rgba(0,255,136,0.1); color: var(--primary); padding: 3px 10px; border-radius: 50px; display: inline-block; margin-bottom: 10px; }
-        .exp-item p { color: var(--text-gray); font-size: 0.9rem; }
-        footer { border-top: 1px solid var(--glass-border); padding: 25px 0; margin-top: 40px; text-align: center; }
-        .menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--primary); color: var(--dark-bg); border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-size: 1.2rem; }
-        @media (max-width: 768px) { .admin-sidebar { transform: translateX(-100%); } .admin-sidebar.open { transform: translateX(0); } .admin-main { margin-left: 0; padding: 15px; padding-top: 70px; } .menu-toggle { display: block; } }
-    </style>
-</head>
-<body>
-<div class="animated-bg"></div>
-<div class="grid-pattern"></div>
-<div id="particlesContainer"></div>
+{% extends "admin/_base.html" %}
+{% block title %}Experience{% endblock %}
+{% block page_title %}Experience{% endblock %}
 
-<button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+{% block content %}
 
-<div class="admin-wrapper">
-    <aside class="admin-sidebar" id="sidebar">
-        <div class="sidebar-header"><h3>ZA<span>.</span></h3><p>ADMIN PANEL</p></div>
-        <ul class="sidebar-nav">
-            <li><a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="/admin/profile"><i class="fas fa-user"></i> Profile</a></li>
-            <li><a href="/admin/skills"><i class="fas fa-code"></i> Skills</a></li>
-            <li><a href="/admin/projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
-            <li><a href="/admin/experience" class="active"><i class="fas fa-briefcase"></i> Experience</a></li>
-            <li><a href="/admin/messages"><i class="fas fa-envelope"></i> Messages</a></li>
-            <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
-            <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </aside>
-
-    <main class="admin-main">
-        <div class="admin-header">
-            <h2><i class="fas fa-briefcase me-2" style="color:var(--primary);"></i> Manage Experience</h2>
-            <button class="btn-primary-custom" id="addExpBtn"><i class="fas fa-plus"></i> Add Experience</button>
-        </div>
-
-        <div class="glass-card">
-            <div id="experienceList"><div class="text-center py-4" style="color:var(--text-gray);">Loading...</div></div>
-        </div>
-
-        <footer><p class="small mb-0" style="color:var(--text-gray);">&copy; 2026 Zaheer Ahmed</p></footer>
-    </main>
+<div class="section-head">
+    <h2>Manage Experience</h2>
+    <button class="btn btn-primary" onclick="openExpModal()">
+        <i class="fas fa-plus"></i> Add Experience
+    </button>
 </div>
 
-<div class="modal fade" id="expModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle" style="color:var(--primary);">Add Experience</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" id="modalClose"></button>
-            </div>
-            <form id="expForm">
-                <div class="modal-body">
-                    <input type="hidden" id="expId">
-                    <div class="mb-3"><label class="form-label">Title</label><input type="text" id="expTitle" class="form-control-custom" required></div>
-                    <div class="mb-3"><label class="form-label">Organization</label><input type="text" id="expOrganization" class="form-control-custom"></div>
-                    <div class="mb-3"><label class="form-label">Description</label><textarea id="expDescription" class="form-control-custom" rows="3"></textarea></div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3"><label class="form-label">Start Date</label><input type="text" id="expStart" class="form-control-custom" placeholder="2023"></div>
-                        <div class="col-md-6 mb-3"><label class="form-label">End Date</label><input type="text" id="expEnd" class="form-control-custom" placeholder="Present"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3"><label class="form-label">Display Order</label><input type="number" id="expOrder" class="form-control-custom" value="0"></div>
-                        <div class="col-md-6 mb-3 form-check ms-3"><input type="checkbox" id="expCurrent" class="form-check-input"><label class="form-check-label ms-2" for="expCurrent">Currently Active</label></div>
-                    </div>
-                </div>
-                <div class="modal-footer"><button type="submit" class="btn-primary-custom">Save Experience</button></div>
-            </form>
-        </div>
+<div class="card">
+    <div id="expList">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<div class="modal-overlay" id="expModal">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="expModalTitle">Add Experience</h3>
+            <button class="modal-close" onclick="closeExpModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form onsubmit="return saveExp(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" id="eTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Organization</label>
+                    <input type="text" id="eOrg" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="eDesc" class="form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="text" id="eStart" class="form-input" placeholder="2024">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">End Date</label>
+                    <input type="text" id="eEnd" class="form-input" placeholder="2025 or leave blank">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Display Order</label>
+                    <input type="number" id="eOrder" class="form-input" value="0">
+                </div>
+                <label class="form-check">
+                    <input type="checkbox" id="eCurrent"><span>Currently ongoing</span>
+                </label>
+            </div>
+            <div class="modal-foot">
+                <button type="button" class="btn btn-ghost" onclick="closeExpModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
 <script>
-    const c = document.getElementById('particlesContainer');
-    for (let i = 0; i < 40; i++) { const p = document.createElement('div'); p.classList.add('particle'); p.style.left = Math.random()*100+'%'; p.style.animationDelay = Math.random()*20+'s'; p.style.animationDuration = (12+Math.random()*18)+'s'; p.style.width = p.style.height = (Math.random()*3+2)+'px'; c.appendChild(p); }
-    document.getElementById('menuToggle')?.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
-    document.getElementById('logoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href='/login'; });
+const H = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` };
+let allExp = [];
+let editId = null;
+
+async function loadExp() {
+    const box = document.getElementById('expList');
+    try {
+        const res = await fetch('/api/experience', { headers: H });
+        const data = await res.json();
+        allExp = data.experience || [];
+        if (allExp.length === 0) {
+            box.innerHTML = '<div class="empty-state"><i class="fas fa-briefcase"></i><p>No experience yet</p></div>';
+            return;
+        }
+        box.innerHTML = allExp.map(e => `
+            <div style="padding: 20px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 16px;">
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 1rem;">${esc(e.title)}</div>
+                    <div style="color: var(--accent-light); font-size: 0.9rem; margin: 4px 0;">${esc(e.organization || '')}</div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">${esc(e.description || '')}</div>
+                    <div style="color: var(--text-dim); font-size: 0.8rem; margin-top: 6px;">${esc(e.start_date || '')} — ${e.is_current ? 'Present' : esc(e.end_date || '')}</div>
+                </div>
+                <div class="actions">
+                    <button class="btn-icon" onclick="editExp('${e.id}')"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon danger" onclick="delExp('${e.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) { box.innerHTML = '<div class="empty-state">Failed to load</div>'; }
+}
+
+function esc(t) { const d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+
+function openExpModal() {
+    editId = null;
+    document.getElementById('expModalTitle').textContent = 'Add Experience';
+    ['eTitle','eOrg','eDesc','eStart','eEnd'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('eOrder').value = 0;
+    document.getElementById('eCurrent').checked = false;
+    document.getElementById('expModal').classList.add('open');
+}
+
+function closeExpModal() { document.getElementById('expModal').classList.remove('open'); }
+
+async function saveExp(e) {
+    e.preventDefault();
+    const payload = {
+        title: document.getElementById('eTitle').value,
+        organization: document.getElementById('eOrg').value,
+        description: document.getElementById('eDesc').value,
+        start_date: document.getElementById('eStart').value,
+        end_date: document.getElementById('eEnd').value,
+        display_order: parseInt(document.getElementById('eOrder').value),
+        is_current: document.getElementById('eCurrent').checked
+    };
+    const url = editId ? `/api/experience/${editId}` : '/api/experience';
+    const method = editId ? 'PUT' : 'POST';
+    await fetch(url, { method, headers: H, body: JSON.stringify(payload) });
+    closeExpModal();
+    loadExp();
+    return false;
+}
+
+window.editExp = function(id) {
+    const x = allExp.find(e => e.id === id);
+    if (!x) return;
+    editId = id;
+    document.getElementById('expModalTitle').textContent = 'Edit Experience';
+    document.getElementById('eTitle').value = x.title;
+    document.getElementById('eOrg').value = x.organization || '';
+    document.getElementById('eDesc').value = x.description || '';
+    document.getElementById('eStart').value = x.start_date || '';
+    document.getElementById('eEnd').value = x.end_date || '';
+    document.getElementById('eOrder').value = x.display_order || 0;
+    document.getElementById('eCurrent').checked = x.is_current;
+    document.getElementById('expModal').classList.add('open');
+};
+
+window.delExp = async function(id) {
+    if (!confirm('Delete this experience?')) return;
+    await fetch(`/api/experience/${id}`, { method: 'DELETE', headers: H });
+    loadExp();
+};
+
+loadExp();
 </script>
-</body>
-</html>
+{% endblock %}

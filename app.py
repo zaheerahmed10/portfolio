@@ -180,7 +180,7 @@ def register_page():
 
 @app.route('/admin/<page>')
 def admin_page(page):
-    valid_pages = ['dashboard', 'profile', 'skills', 'projects', 'experience', 'messages', 'users']
+    valid_pages = ['dashboard', 'profile', 'skills', 'projects', 'experience', 'notes', 'messages', 'users']
     if page not in valid_pages:
         return redirect(url_for('admin_page', page='dashboard'))
     return render_template(f'admin/{page}.html')
@@ -738,6 +738,76 @@ def server_error(e):
     if request.path.startswith('/api/'):
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
     return render_template('index.html'), 500
+
+# ==================================================
+# API: ADMIN NOTES (Private — Admin only)
+# ==================================================
+
+@app.route('/api/notes', methods=['GET'])
+@admin_required
+def get_notes():
+    error = check_supabase()
+    if error: return error
+    try:
+        response = supabase.table('admin_notes').select('*').order('is_pinned', desc=True).order('created_at', desc=True).execute()
+        return jsonify({'success': True, 'notes': response.data or []})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/notes', methods=['POST'])
+@admin_required
+def create_note():
+    error = check_supabase()
+    if error: return error
+    try:
+        data = request.get_json()
+        if not data.get('title'):
+            return jsonify({'success': False, 'message': 'Title required'}), 400
+        
+        note_data = {
+            'title': data['title'],
+            'content': data.get('content', ''),
+            'category': data.get('category', 'idea'),
+            'is_pinned': data.get('is_pinned', False),
+            'is_completed': data.get('is_completed', False)
+        }
+        response = supabase.table('admin_notes').insert(note_data).execute()
+        return jsonify({'success': True, 'message': 'Note created', 'note': response.data[0] if response.data else {}}), 201
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/notes/<note_id>', methods=['PUT'])
+@admin_required
+def update_note(note_id):
+    error = check_supabase()
+    if error: return error
+    try:
+        data = request.get_json()
+        update_data = {'updated_at': datetime.now().isoformat()}
+        if 'title' in data: update_data['title'] = data['title']
+        if 'content' in data: update_data['content'] = data['content']
+        if 'category' in data: update_data['category'] = data['category']
+        if 'is_pinned' in data: update_data['is_pinned'] = data['is_pinned']
+        if 'is_completed' in data: update_data['is_completed'] = data['is_completed']
+        
+        supabase.table('admin_notes').update(update_data).eq('id', note_id).execute()
+        return jsonify({'success': True, 'message': 'Note updated'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/api/notes/<note_id>', methods=['DELETE'])
+@admin_required
+def delete_note(note_id):
+    error = check_supabase()
+    if error: return error
+    try:
+        supabase.table('admin_notes').delete().eq('id', note_id).execute()
+        return jsonify({'success': True, 'message': 'Note deleted'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 # ==================================================
